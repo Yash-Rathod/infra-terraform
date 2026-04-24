@@ -22,7 +22,7 @@ module "eks" {
   eks_managed_node_groups = {
     system = {
       name           = "system"
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.small"]
       capacity_type  = "ON_DEMAND"
       min_size       = 1
       max_size       = 2
@@ -32,11 +32,11 @@ module "eks" {
     }
     app = {
       name           = "app"
-      instance_types = ["t3.micro"]
+      instance_types = ["t3.small"]
       capacity_type  = "ON_DEMAND"   # using ON_DEMAND — spot t3.micro unfulfillable in ap-south-1
       min_size       = 1
       max_size       = 3
-      desired_size   = 2
+      desired_size   = 3
       labels         = { role = "app" }
     }
   }
