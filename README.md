@@ -29,54 +29,7 @@ The goal is not a toy. Every component reflects real engineering decisions: IRSA
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Developer Workflow                                                   │
-│                                                                       │
-│  git push → GitHub Actions CI                                         │
-│                 │                                                     │
-│                 ├─ pytest (unit tests)                                │
-│                 ├─ docker build + push → ECR                         │
-│                 └─ sed image tag → apps-config (PAT)                 │
-└──────────────────────────┬──────────────────────────────────────────┘
-                           │ ArgoCD polls every 3 min
-                           ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│  AWS ap-south-1 (Mumbai)                                             │
-│                                                                       │
-│  ┌──────── VPC 10.10.0.0/16 ────────────────────────────────────┐   │
-│  │                                                                │   │
-│  │  Public Subnets (1a, 1b)          Private Subnets (1a, 1b)   │   │
-│  │  ┌──────────────────┐             ┌────────────────────────┐  │   │
-│  │  │  NAT Gateway (×1)│             │  EKS Node Groups       │  │   │
-│  │  │  Internet GW     │             │                        │  │   │
-│  │  └──────────────────┘             │  system: t3.small ×1   │  │   │
-│  │                                   │  (ON_DEMAND)           │  │   │
-│  │                                   │                        │  │   │
-│  │                                   │  app: t3.small ×3      │  │   │
-│  │                                   │  (SPOT)                │  │   │
-│  │                                   │                        │  │   │
-│  │                                   │  ┌──────────────────┐  │  │   │
-│  │                                   │  │  Namespaces      │  │  │   │
-│  │                                   │  │  argocd          │  │  │   │
-│  │                                   │  │  monitoring      │  │  │   │
-│  │                                   │  │  external-secrets│  │  │   │
-│  │                                   │  │  karpenter       │  │  │   │
-│  │                                   │  │  cert-manager    │  │  │   │
-│  │                                   │  │  dev (apps)      │  │  │   │
-│  │                                   │  └──────────────────┘  │  │   │
-│  │                                   └────────────────────────┘  │   │
-│  └────────────────────────────────────────────────────────────────┘  │
-│                                                                       │
-│  ECR (3 repos)     S3 + DynamoDB (Terraform state + lock)            │
-│  Secrets Manager   IAM + IRSA (pod-level AWS auth)                   │
-└─────────────────────────────────────────────────────────────────────┘
-
-Observability Stack (monitoring namespace)
-  Prometheus ──scrapes──▶ ServiceMonitors (all 3 apps + cluster)
-  Grafana    ──reads───▶  Prometheus  →  dashboards + alerts
-  Alertmanager ◀── PrometheusRule: PodCrashLooping
-```
+![BakTrack System Architecture](docs/screenshots/Baktrack-System-Architecture.png)
 
 ---
 
